@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3 uid="uid://bghr5vwysrlsg"]
+
+[ext_resource type="Script" path="res://player/player.gd" id="1_26dja"]
+[ext_resource type="Script" path="res://state_machine/state_machine.gd" id="2_bnrky"]
+[ext_resource type="Script" path="res://player/states/walk_state.gd" id="3_d2ih3"]
+[ext_resource type="Script" path="res://player/states/jump_state.gd" id="4_syn2f"]
+[ext_resource type="Script" path="res://player/states/fall_state.gd" id="5_a6pf2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8taer"]
+size = Vector2(16, 32)
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_26dja")
+speed = 250.0
+friction = 40.0
+jump_velocity = 340.0
+terminal_velocity = 870.0
+gravity_multiplier = 1.5
+jump_height_divisor = 4.0
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-8, -16, 8, -16, 8, 16, -8, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_8taer")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("2_bnrky")
+initial_state = NodePath("WalkState")
+
+[node name="WalkState" type="Node" parent="StateMachine" node_paths=PackedStringArray("jump_state", "fall_state")]
+script = ExtResource("3_d2ih3")
+jump_state = NodePath("../JumpState")
+fall_state = NodePath("../FallState")
+
+[node name="JumpState" type="Node" parent="StateMachine" node_paths=PackedStringArray("walk_state", "fall_state")]
+script = ExtResource("4_syn2f")
+walk_state = NodePath("../WalkState")
+fall_state = NodePath("../FallState")
+
+[node name="FallState" type="Node" parent="StateMachine" node_paths=PackedStringArray("walk_state")]
+script = ExtResource("5_a6pf2")
+walk_state = NodePath("../WalkState")
